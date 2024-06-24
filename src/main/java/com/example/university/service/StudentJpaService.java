@@ -47,17 +47,16 @@ public class StudentJpaService implements StudentRepository {
 
 		List<Course> courses = courseJpaRepository.findAllById(courseIds);
 
-		if (courses.size() != courseIds.size()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "One are more courses are not found");
-		}
 		student.setCourses(courses);
 
 		for (Course course : courses) {
 			course.getStudents().add(student);
 		}
 
+		Student savedStudent = studentJpaRepository.save(student);
+
 		courseJpaRepository.saveAll(courses);
-		return studentJpaRepository.save(student);
+		return savedStudent;
 	}
 
 	@Override
@@ -72,45 +71,42 @@ public class StudentJpaService implements StudentRepository {
 				newStudent.setEmail(student.getEmail());
 			}
 			if (student.getCourses() != null) {
-				List<Course> newCourses = newStudent.getCourses();
-
-				for (Course course : newCourses) {
-					course.getStudents().remove(newStudent);
-				}
-				courseJpaRepository.saveAll(newCourses);
-
-				List<Integer> courseIds = new ArrayList<>();
-
-				for (Course course : student.getCourses()) {
-					courseIds.add(course.getCourseId());
-				}
-
-				List<Course> courses = courseJpaRepository.findAllById(courseIds);
-				
-				if (courses.size() != courseIds.size()) {
-					throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "one are more courses are not found");
-				}
-				newStudent.setCourses(courses);
+				List<Course> courses = newStudent.getCourses();
 
 				for (Course course : courses) {
-					course.getStudents().add(newStudent);
+					course.getStudents().remove(newStudent);
 				}
 				courseJpaRepository.saveAll(courses);
+
+				List<Integer> newCourseIds = new ArrayList<>();
+
+				for (Course course : student.getCourses()) {
+					newCourseIds.add(course.getCourseId());
+				}
+
+				List<Course> newCourses = courseJpaRepository.findAllById(newCourseIds);
+
+
+				for (Course course : newCourses) {
+					course.getStudents().add(newStudent);
+				}
+				courseJpaRepository.saveAll(newCourses);
+				newStudent.setCourses(newCourses);
 			}
 			return studentJpaRepository.save(newStudent);
-		} catch (NoSuchElementException e) {
+		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
 	}
 
 	@Override
 	public List<Course> getStudentCourse(int studentId) {
-		try{
+		try {
 			Student student = studentJpaRepository.findById(studentId).get();
-			List<Course> courses =  student.getCourses();
+			List<Course> courses = student.getCourses();
 			return courses;
-		}catch(Exception e){
-			 throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
 	}
 
