@@ -63,7 +63,7 @@ public class ProfessorJpaService implements ProfessorRepository {
 	public void deleteProfessor(int professorId) {
 		try {
 			Professor professor = professorJpaRepository.findById(professorId).get();
-			List<Course> courses = courseJpaRepository.findByProfessor(professor);
+			ArrayList<Course> courses = courseJpaRepository.findByProfessor(professor);
 
 			for (Course course : courses) {
 				course.setProfessor(null);

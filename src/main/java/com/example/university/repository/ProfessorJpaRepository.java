@@ -6,7 +6,7 @@ import com.example.university.model.Professor;
 
 @Repository
 public interface ProfessorJpaRepository extends JpaRepository<Professor, Integer> {
-
+    
 }
 
 // Write your code here

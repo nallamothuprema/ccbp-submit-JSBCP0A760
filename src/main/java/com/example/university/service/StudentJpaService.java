@@ -39,6 +39,7 @@ public class StudentJpaService implements StudentRepository {
 
 	@Override
 	public Student addStudent(Student student) {
+
 		List<Integer> courseIds = new ArrayList<>();
 
 		for (Course course : student.getCourses()) {
@@ -76,7 +77,6 @@ public class StudentJpaService implements StudentRepository {
 				for (Course course : courses) {
 					course.getStudents().remove(newStudent);
 				}
-				courseJpaRepository.saveAll(courses);
 
 				List<Integer> newCourseIds = new ArrayList<>();
 
@@ -86,7 +86,6 @@ public class StudentJpaService implements StudentRepository {
 
 				List<Course> newCourses = courseJpaRepository.findAllById(newCourseIds);
 
-
 				for (Course course : newCourses) {
 					course.getStudents().add(newStudent);
 				}
@@ -94,17 +93,6 @@ public class StudentJpaService implements StudentRepository {
 				newStudent.setCourses(newCourses);
 			}
 			return studentJpaRepository.save(newStudent);
-		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-		}
-	}
-
-	@Override
-	public List<Course> getStudentCourse(int studentId) {
-		try {
-			Student student = studentJpaRepository.findById(studentId).get();
-			List<Course> courses = student.getCourses();
-			return courses;
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
@@ -125,6 +113,16 @@ public class StudentJpaService implements StudentRepository {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
 		throw new ResponseStatusException(HttpStatus.NO_CONTENT);
+	}
+
+	@Override
+	public List<Course> getStudentCourse(int studentId) {
+		try {
+			Student student = studentJpaRepository.findById(studentId).get();
+			return student.getCourses();
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		}
 	}
 
 }

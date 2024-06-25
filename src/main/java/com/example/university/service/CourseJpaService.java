@@ -11,6 +11,7 @@ import java.util.NoSuchElementException;
 
 import com.example.university.model.*;
 import com.example.university.repository.*;
+import com.example.university.service.*;
 
 @Service
 public class CourseJpaService implements CourseRepository {
@@ -42,20 +43,21 @@ public class CourseJpaService implements CourseRepository {
 	}
 
 	@Override
-	public Course addCourse(Course course) {	
-			int professorId = course.getProfessor().getProfessorId();
-			Professor professor = professorJpaRepository.findById(professorId).get();
-			course.setProfessor(professor);
-			
-			List<Integer> studentIds = new ArrayList();
-			for(Student student : course.getStudents()){
-				studentIds.add(student.getStudentId());
-			}
+	public Course addCourse(Course course) {
 
-			List<Student> students = studentJpaRepository.findAllById(studentIds);
-			course.setStudents(students);
+		int professorId = course.getProfessor().getProfessorId();
+		Professor professor = professorJpaRepository.findById(professorId).get();
+		course.setProfessor(professor);
 
-			return courseJpaRepository.save(course);
+		List<Integer> studentIds = new ArrayList<>();
+		for (Student student : course.getStudents()) {
+			studentIds.add(student.getStudentId());
+		}
+
+		List<Student> students = studentJpaRepository.findAllById(studentIds);
+		course.setStudents(students);
+
+		return courseJpaRepository.save(course);
 	}
 
 	@Override
@@ -70,24 +72,22 @@ public class CourseJpaService implements CourseRepository {
 			}
 			if (course.getProfessor() != null) {
 				int professorId = course.getProfessor().getProfessorId();
-				Professor newProfessor = professorJpaRepository.findById(professorId).get();
-				newCourse.setProfessor(newProfessor);
+				Professor professor = professorJpaRepository.findById(professorId).get();
+				newCourse.setProfessor(professor);
 			}
 
-			if(course.getStudents() != null){
-				List<Integer> studentIds = new ArrayList<>();
-
-				for(Student student : course.getStudents()){
-					studentIds.add(student.getStudentId());
-				}
-
-				List<Student> newStudents = studentJpaRepository.findAllById(studentIds);
-				newCourse.setStudents(newStudents);
+			List<Integer> studentIds = new ArrayList<>();
+			for (Student student : course.getStudents()) {
+				studentIds.add(student.getStudentId());
 			}
+
+			List<Student> students = studentJpaRepository.findAllById(studentIds);
+			newCourse.setStudents(students);
+
 			return courseJpaRepository.save(newCourse);
-			
-		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
+		} catch (NoSuchElementException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Wrong professorId");
 		}
 	}
 
@@ -95,9 +95,8 @@ public class CourseJpaService implements CourseRepository {
 	public void deleteCourse(int courseId) {
 		try {
 			Course course = courseJpaRepository.findById(courseId).get();
-
 			List<Student> students = course.getStudents();
-			for(Student student : students){
+			for (Student student : students) {
 				student.getCourses().remove(course);
 			}
 
@@ -110,20 +109,20 @@ public class CourseJpaService implements CourseRepository {
 	}
 
 	@Override
-	public List<Student> getCourseStudent(int courseId) {
+	public Professor getCourseProfessor(int courseId) {
 		try {
 			Course course = courseJpaRepository.findById(courseId).get();
-			return course.getStudents();
+			return course.getProfessor();
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
 	}
 
 	@Override
-	public Professor getCourseProfessor(int courseId) {
+	public List<Student> getCourseStudent(int courseId) {
 		try {
 			Course course = courseJpaRepository.findById(courseId).get();
-			return course.getProfessor();
+			return course.getStudents();
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
