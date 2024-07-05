@@ -1,13 +1,16 @@
 package com.example.university.model;
 
 import javax.persistence.*;
-import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "course")
 public class Course {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -17,7 +20,7 @@ public class Course {
     private String courseName;
 
     @Column(name = "credits")
-    private String credits;
+    private int credits;
 
     @ManyToOne
     @JoinColumn(name = "professorid")
@@ -29,7 +32,6 @@ public class Course {
     private List<Student> students;
 
     public Course() {
-
     }
 
     public int getCourseId() {
@@ -48,11 +50,11 @@ public class Course {
         this.courseName = courseName;
     }
 
-    public String getCredits() {
+    public int getCredits() {
         return credits;
     }
 
-    public void setCredits(String credits) {
+    public void setCredits(int credits) {
         this.credits = credits;
     }
 
@@ -72,5 +74,3 @@ public class Course {
         this.students = students;
     }
 }
-
-// Write your code here

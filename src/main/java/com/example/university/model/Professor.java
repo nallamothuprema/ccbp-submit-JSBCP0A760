@@ -3,7 +3,6 @@ package com.example.university.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "professor")
 public class Professor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,7 +16,6 @@ public class Professor {
     private String department;
 
     public Professor() {
-
     }
 
     public int getProfessorId() {
@@ -43,6 +41,5 @@ public class Professor {
     public void setDepartment(String department) {
         this.department = department;
     }
-}
 
-// Write your code here
+}

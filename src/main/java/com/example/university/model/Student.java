@@ -1,13 +1,15 @@
 package com.example.university.model;
 
+import javax.persistence.*;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import javax.persistence.*;
 import java.util.List;
 
 @Entity
 @Table(name = "student")
 public class Student {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -24,9 +26,7 @@ public class Student {
     private List<Course> courses;
 
     public Student() {
-
     }
-
     public int getStudentId() {
         return studentId;
     }
@@ -45,6 +45,7 @@ public class Student {
 
     public String getEmail() {
         return email;
+
     }
 
     public void setEmail(String email) {
@@ -53,11 +54,10 @@ public class Student {
 
     public List<Course> getCourses() {
         return courses;
+
     }
 
     public void setCourses(List<Course> courses) {
         this.courses = courses;
     }
 }
-
-// Write your code here

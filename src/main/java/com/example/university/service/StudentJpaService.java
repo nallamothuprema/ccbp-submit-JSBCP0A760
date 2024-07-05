@@ -33,7 +33,7 @@ public class StudentJpaService implements StudentRepository {
 			Student student = studentJpaRepository.findById(studentId).get();
 			return student;
 		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "studentId " + studentId + " not found");
 		}
 	}
 
@@ -48,6 +48,10 @@ public class StudentJpaService implements StudentRepository {
 
 		List<Course> courses = courseJpaRepository.findAllById(courseIds);
 
+		if (courses.size() != courseIds.size()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+		}
+
 		student.setCourses(courses);
 
 		for (Course course : courses) {
@@ -55,7 +59,6 @@ public class StudentJpaService implements StudentRepository {
 		}
 
 		Student savedStudent = studentJpaRepository.save(student);
-
 		courseJpaRepository.saveAll(courses);
 		return savedStudent;
 	}
@@ -77,6 +80,7 @@ public class StudentJpaService implements StudentRepository {
 				for (Course course : courses) {
 					course.getStudents().remove(newStudent);
 				}
+				courseJpaRepository.saveAll(courses);
 
 				List<Integer> newCourseIds = new ArrayList<>();
 
@@ -86,15 +90,20 @@ public class StudentJpaService implements StudentRepository {
 
 				List<Course> newCourses = courseJpaRepository.findAllById(newCourseIds);
 
+				if (courses.size() != newCourseIds.size()) {
+					throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+				}
+
 				for (Course course : newCourses) {
 					course.getStudents().add(newStudent);
 				}
 				courseJpaRepository.saveAll(newCourses);
 				newStudent.setCourses(newCourses);
 			}
+
 			return studentJpaRepository.save(newStudent);
-		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		} catch (NoSuchElementException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "studentId " + studentId + " not found");
 		}
 	}
 
@@ -110,7 +119,7 @@ public class StudentJpaService implements StudentRepository {
 			courseJpaRepository.saveAll(courses);
 			studentJpaRepository.deleteById(studentId);
 		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "studentId " + studentId + " not found");
 		}
 		throw new ResponseStatusException(HttpStatus.NO_CONTENT);
 	}
@@ -121,7 +130,7 @@ public class StudentJpaService implements StudentRepository {
 			Student student = studentJpaRepository.findById(studentId).get();
 			return student.getCourses();
 		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "studentId " + studentId + " not found");
 		}
 	}
 

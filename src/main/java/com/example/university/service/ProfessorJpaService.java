@@ -8,8 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.university.model.Course;
-import com.example.university.model.Professor;
+import com.example.university.model.*;
 import com.example.university.repository.*;
 
 @Service
@@ -33,7 +32,7 @@ public class ProfessorJpaService implements ProfessorRepository {
 			Professor professor = professorJpaRepository.findById(professorId).get();
 			return professor;
 		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "professorId " + professorId + " not found");
 		}
 	}
 
@@ -55,7 +54,7 @@ public class ProfessorJpaService implements ProfessorRepository {
 			}
 			return professorJpaRepository.save(newProfessor);
 		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "professorId " + professorId + " not found");
 		}
 	}
 
@@ -63,7 +62,7 @@ public class ProfessorJpaService implements ProfessorRepository {
 	public void deleteProfessor(int professorId) {
 		try {
 			Professor professor = professorJpaRepository.findById(professorId).get();
-			ArrayList<Course> courses = courseJpaRepository.findByProfessor(professor);
+			List<Course> courses = courseJpaRepository.findByProfessor(professor);
 
 			for (Course course : courses) {
 				course.setProfessor(null);
@@ -72,7 +71,7 @@ public class ProfessorJpaService implements ProfessorRepository {
 
 			professorJpaRepository.deleteById(professorId);
 		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "professorId " + professorId + " not found");
 		}
 		throw new ResponseStatusException(HttpStatus.NO_CONTENT);
 
@@ -82,10 +81,9 @@ public class ProfessorJpaService implements ProfessorRepository {
 	public List<Course> getProfessorCourse(int professorId) {
 		try {
 			Professor professor = professorJpaRepository.findById(professorId).get();
-			List<Course> courses = courseJpaRepository.findByProfessor(professor);
-			return courses;
+			return courseJpaRepository.findByProfessor(professor);
 		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "professorId " + professorId + " not found");
 		}
 	}
 }

@@ -7,11 +7,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import com.example.university.model.*;
 import com.example.university.repository.*;
-import com.example.university.service.*;
 
 @Service
 public class CourseJpaService implements CourseRepository {
@@ -23,7 +21,7 @@ public class CourseJpaService implements CourseRepository {
 	private StudentJpaRepository studentJpaRepository;
 
 	@Autowired
-	private ProfessorJpaRepository professorJpaRepository;
+	private ProfessorJpaService professorJpaService;
 
 	@Override
 	public ArrayList<Course> getCourses() {
@@ -38,15 +36,14 @@ public class CourseJpaService implements CourseRepository {
 			Course course = courseJpaRepository.findById(courseId).get();
 			return course;
 		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "courseId " + courseId + " not found");
 		}
 	}
 
 	@Override
 	public Course addCourse(Course course) {
-
 		int professorId = course.getProfessor().getProfessorId();
-		Professor professor = professorJpaRepository.findById(professorId).get();
+		Professor professor = professorJpaService.getProfessorById(professorId);
 		course.setProfessor(professor);
 
 		List<Integer> studentIds = new ArrayList<>();
@@ -67,27 +64,28 @@ public class CourseJpaService implements CourseRepository {
 			if (course.getCourseName() != null) {
 				newCourse.setCourseName(course.getCourseName());
 			}
-			if (course.getCredits() != null) {
+			if (course.getCredits() != 0) {
 				newCourse.setCredits(course.getCredits());
 			}
 			if (course.getProfessor() != null) {
 				int professorId = course.getProfessor().getProfessorId();
-				Professor professor = professorJpaRepository.findById(professorId).get();
+				Professor professor = professorJpaService.getProfessorById(professorId);
 				newCourse.setProfessor(professor);
 			}
+			if (course.getStudents() != null) {
+				List<Integer> studentIds = new ArrayList<>();
 
-			List<Integer> studentIds = new ArrayList<>();
-			for (Student student : course.getStudents()) {
-				studentIds.add(student.getStudentId());
+				for (Student student : course.getStudents()) {
+					studentIds.add(student.getStudentId());
+				}
+
+				List<Student> students = studentJpaRepository.findAllById(studentIds);
+				newCourse.setStudents(students);
 			}
-
-			List<Student> students = studentJpaRepository.findAllById(studentIds);
-			newCourse.setStudents(students);
-
 			return courseJpaRepository.save(newCourse);
 
-		} catch (NoSuchElementException e) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Wrong professorId");
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "courseId " + courseId + " not found");
 		}
 	}
 
@@ -103,7 +101,7 @@ public class CourseJpaService implements CourseRepository {
 			studentJpaRepository.saveAll(students);
 			courseJpaRepository.deleteById(courseId);
 		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "courseId" + courseId + " not found");
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "courseId " + courseId + " not found");
 		}
 		throw new ResponseStatusException(HttpStatus.NO_CONTENT);
 	}
@@ -114,7 +112,7 @@ public class CourseJpaService implements CourseRepository {
 			Course course = courseJpaRepository.findById(courseId).get();
 			return course.getProfessor();
 		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "courseId " + courseId + " not found");
 		}
 	}
 
@@ -124,7 +122,7 @@ public class CourseJpaService implements CourseRepository {
 			Course course = courseJpaRepository.findById(courseId).get();
 			return course.getStudents();
 		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "courseId " + courseId + " not found");
 		}
 	}
 
