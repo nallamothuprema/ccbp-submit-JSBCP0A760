@@ -1,21 +1,34 @@
 package com.example.university.repository;
 
-import java.util.ArrayList;
+
+import com.example.university.model.Course;
+import com.example.university.model.Professor;
+import org.springframework.stereotype.Repository;
+
+
 import java.util.List;
-import com.example.university.model.*;
 
+
+@Repository
 public interface ProfessorRepository {
-    ArrayList<Professor> getProfessors();
 
-    Professor getProfessorById(int professorId);
+
+    List<Professor> getProfessors();
+
+
+    Professor getProfessorById(Integer professorId);
+
 
     Professor addProfessor(Professor professor);
 
+
     Professor updateProfessor(int professorId, Professor professor);
+
 
     void deleteProfessor(int professorId);
 
-    List<Course> getProfessorCourse(int professorId);
+
+    List<Course> getProfessorCourses(int professorId);
 }
 
 // Write your code here

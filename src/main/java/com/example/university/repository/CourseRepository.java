@@ -1,23 +1,37 @@
 package com.example.university.repository;
 
-import java.util.ArrayList;
+
+import com.example.university.model.Course;
+import com.example.university.model.Professor;
+import com.example.university.model.Student;
+
+
 import java.util.List;
-import com.example.university.model.*;
+
+
 
 public interface CourseRepository {
-    ArrayList<Course> getCourses();
+    List<Course> getCourses();
+
 
     Course getCourseById(int courseId);
 
+
     Course addCourse(Course course);
+
 
     Course updateCourse(int courseId, Course course);
 
+
     void deleteCourse(int courseId);
+
 
     Professor getCourseProfessor(int courseId);
 
-    List<Student> getCourseStudent(int courseId);
+
+    List<Student> getCourseStudents(int courseId);
+
+
 }
 
 // Write your code here
